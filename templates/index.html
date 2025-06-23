@@ -4,214 +4,856 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deepfake Audio Detection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(120deg, #e0e7ff 0%, #f4f4f4 100%);
-            min-height: 100vh;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .container {
-            background: #fff;
-            padding: 2.5rem 2rem 2rem 2rem;
-            max-width: 480px;
-            margin: 3rem auto 0 auto;
-            border-radius: 18px;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #2d3a5a);
+            min-height: 100vh;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
+            padding: 20px;
         }
-        h2 {
-            color: #2d3a5a;
-            margin-bottom: 1.5rem;
-            letter-spacing: 1px;
-        }
-        label {
-            font-weight: 500;
-            color: #2d3a5a;
-        }
-        input[type="file"] {
-            margin-top: 0.5rem;
-            margin-bottom: 1.2rem;
-            padding: 0.5rem;
-            border: 2px dashed #b3b3b3;
-            border-radius: 7px;
-            background: #f8fafc;
+        
+        .container {
             width: 100%;
-            transition: border-color 0.2s;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
         }
-        input[type="file"]:hover, input[type="file"]:focus {
+        
+        header {
+            background: linear-gradient(to right, #2d3a5a, #1a2a6c);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .content {
+            display: flex;
+            padding: 25px;
+            gap: 25px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+        }
+        
+        .section {
+            flex: 1;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #eaeaea;
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            color: #2d3a5a;
+        }
+        
+        .section-title i {
+            font-size: 1.4rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #eef2ff;
+        }
+        
+        .upload-section .section-title i {
+            color: #4caf50;
+        }
+        
+        .record-section .section-title i {
+            color: #2196f3;
+        }
+        
+        .file-upload {
+            border: 2px dashed #b3b3b3;
+            border-radius: 10px;
+            padding: 25px 20px;
+            text-align: center;
+            background: #f8fafc;
+            transition: border-color 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .file-upload:hover {
             border-color: #6366f1;
         }
-        button {
-            padding: 0.7rem 1.7rem;
-            margin-top: 0.7rem;
-            margin-right: 0.5rem;
-            border: none;
-            border-radius: 6px;
-            background: #6366f1;
-            color: #fff;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
-            transition: background 0.2s, box-shadow 0.2s;
+        
+        .file-upload i {
+            font-size: 2.5rem;
+            color: #6366f1;
+            margin-bottom: 15px;
         }
-        button:disabled {
+        
+        .file-upload p {
+            font-size: 1rem;
+            color: #64748b;
+            margin-bottom: 15px;
+        }
+        
+        .file-upload label {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #6366f1;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .file-upload label:hover {
+            background: #4f46e5;
+        }
+        
+        #fileInput {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+        
+        .recording-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .recording-btn {
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            flex: 1;
+        }
+        
+        #recordBtn {
+            background: linear-gradient(to right, #2196f3, #1976d2);
+            color: white;
+        }
+        
+        #recordBtn:hover {
+            background: linear-gradient(to right, #1976d2, #0d47a1);
+        }
+        
+        #stopBtn {
+            background: linear-gradient(to right, #f44336, #d32f2f);
+            color: white;
+        }
+        
+        #stopBtn:hover {
+            background: linear-gradient(to right, #d32f2f, #b71c1c);
+        }
+        
+        #stopBtn:disabled {
             background: #b3b3b3;
             cursor: not-allowed;
         }
-        button[type="submit"] {
-            margin-top: 1.2rem;
-            width: 100%;
-            background: #2d3a5a;
-            font-size: 1.08rem;
-            font-weight: 600;
-        }
-        button[type="submit"]:hover {
-            background: #47507a;
-        }
+        
         .timer {
+            text-align: center;
             font-size: 1.1rem;
-            font-weight: 500;
-            color: #6366f1;
-            margin-top: 0.7rem;
+            font-weight: 600;
+            color: #2d3a5a;
+            margin: 15px 0;
+            padding: 12px;
+            background: #eef2ff;
+            border-radius: 8px;
         }
+        
+        .audio-preview {
+            margin-top: 15px;
+        }
+        
+        .audio-preview h3 {
+            color: #2d3a5a;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        audio {
+            width: 100%;
+            outline: none;
+            border-radius: 8px;
+        }
+        
         .error {
             color: #e11d48;
             font-weight: 600;
-            margin-top: 0.7rem;
+            margin: 10px 0;
+            padding: 10px;
+            background: #fff0f3;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
         }
-        audio {
-            margin-top: 1rem;
-            width: 100%;
-            outline: none;
+        
+        .permission-help {
+            background: #e6f7ff;
+            border-left: 4px solid #1890ff;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            display: none;
         }
+        
+        .permission-help h4 {
+            color: #1890ff;
+            margin-bottom: 8px;
+        }
+        
+        .submit-area {
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+        
+        #submitBtn {
+            padding: 16px 40px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(to right, #2d3a5a, #1a2a6c);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        #submitBtn:hover {
+            background: linear-gradient(to right, #1a2a6c, #0d1b4d);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        #submitBtn:disabled {
+            background: #b3b3b3;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
         .info {
-            margin-top: 2rem;
+            text-align: center;
             color: #64748b;
-            font-size: 0.98rem;
+            font-size: 0.9rem;
+            padding: 15px 20px 20px;
+        }
+        
+        /* Result Page Styles */
+        .result-container {
+            display: none;
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            margin: 2rem auto;
+        }
+        
+        .result-header {
+            background: linear-gradient(to right, #2d3a5a, #1a2a6c);
+            color: white;
+            padding: 25px 30px;
             text-align: center;
         }
+        
+        .result-content {
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .result-icon {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            font-size: 5rem;
+        }
+        
+        .real .result-icon {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+        }
+        
+        .fake .result-icon {
+            background: linear-gradient(135deg, #f44336, #c62828);
+            color: white;
+        }
+        
+        .result-title {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .real .result-title {
+            color: #2E7D32;
+        }
+        
+        .fake .result-title {
+            color: #c62828;
+        }
+        
+        .result-message {
+            font-size: 1.2rem;
+            margin: 20px 0;
+            color: #2d3a5a;
+        }
+        
+        .audio-preview {
+            margin: 30px 0;
+        }
+        
+        .back-btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            background: #3498db;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: #2980b9;
+        }
+        
         @media (max-width: 600px) {
-            .container {
-                padding: 1.2rem 0.5rem 1.5rem 0.5rem;
-                max-width: 98vw;
+            .content {
+                padding: 15px;
+                gap: 15px;
             }
-            h2 {
-                font-size: 1.3rem;
+            
+            .section {
+                padding: 15px;
+            }
+            
+            .file-upload {
+                padding: 20px 15px;
+            }
+            
+            .recording-controls {
+                flex-direction: column;
+            }
+            
+            .result-content {
+                padding: 20px;
+            }
+            
+            .result-icon {
+                width: 120px;
+                height: 120px;
+                font-size: 4rem;
+            }
+            
+            .result-title {
+                font-size: 2.5rem;
             }
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h2>Deepfake Audio Detection</h2>
-    <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data" style="width:100%">
-        <label for="fileInput">Select audio file (.wav/.flac only):</label>
-        <input type="file" name="audio" accept=".wav,.flac" id="fileInput" />
-
-        <div style="margin: 1.2rem 0 0.5rem 0; color:#64748b; font-size:0.97rem;">Or record directly:</div>
-        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <button type="button" id="recordBtn">🎙️ Start Recording</button>
-            <button type="button" id="stopBtn" disabled>⏹️ Stop Recording</button>
+    <!-- Upload Page -->
+    <div class="container" id="uploadContainer">
+        <header>
+            <h1><i class="fas fa-microphone-alt"></i> Deepfake Audio Detection</h1>
+        </header>
+        
+        <div class="content">
+            <!-- Upload Section -->
+            <div class="section upload-section">
+                <div class="section-title">
+                    <i class="fas fa-file-upload"></i>
+                    <h2>Upload Audio File</h2>
+                </div>
+                
+                <div class="file-upload" id="dropArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Click to select or drop an audio file</p>
+                    <p style="font-size: 0.9rem; margin-bottom: 15px;">Supported formats: .wav, .flac, .mp3, .m4a</p>
+                    <label for="fileInput">Browse Files</label>
+                    <input type="file" name="audio" accept=".wav,.flac,.mp3,.m4a" id="fileInput">
+                </div>
+                
+                <div class="audio-preview">
+                    <h3>Selected File:</h3>
+                    <audio id="filePlayback" controls></audio>
+                </div>
+            </div>
+            
+            <!-- Recording Section -->
+            <div class="section record-section">
+                <div class="section-title">
+                    <i class="fas fa-microphone"></i>
+                    <h2>Live Recording</h2>
+                </div>
+                
+                <div class="recording-controls">
+                    <button class="recording-btn" id="recordBtn">
+                        <i class="fas fa-circle"></i> Start Recording
+                    </button>
+                    <button class="recording-btn" id="stopBtn" disabled>
+                        <i class="fas fa-stop"></i> Stop Recording
+                    </button>
+                </div>
+                
+                <div class="timer" id="timerDisplay">
+                    <i class="fas fa-clock"></i> Recording: 0s
+                </div>
+                
+                <div class="audio-preview">
+                    <h3>Recording Preview:</h3>
+                    <audio id="audioPlayback" controls></audio>
+                </div>
+                
+                <div class="permission-help" id="permissionHelp">
+                    <h4>Microphone Permission Required</h4>
+                    <p>If you don't see the permission prompt:</p>
+                    <ol>
+                        <li>Look for a camera/microphone icon in your browser's address bar</li>
+                        <li>Click it and select "Always allow..."</li>
+                        <li>Refresh the page</li>
+                    </ol>
+                    <p>For Chrome: <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktY2FtZXJhIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik0xNSA0YS41LjUgMCAwIDEtLjUuNWgtMi41bC4zMi0xLjU5QTEuNSAxLjUgMCAwIDAgMTIgMmgtMXYxYTEgMSAwIDAgMSAxIDFoNWwuNSAxLjg1N2EuNS41IDAgMCAxIC4wMTYuMDg1TDE1IDR6TTAgNGEyIDIgMCAwIDAgMiAyaDEyYTIgMiAwIDAgMCAyLTJWMmEyIDIgMCAwIDAtMi0ySDJBMiAyIDAgMCAwIDAgMnYyeiIvPgogIDxwYXRoIGQ9Ik05IDVhMSAxIDAgMSAwLTIgMCAxIDEgMCAwIDAgMiAwem0wIDNhMiAyIDAgMSAxLTQtMCAyIDIgMCAwIDEgNCAweiIvPgo8L3N2Zz4=" alt="Permission icon" style="height: 16px; vertical-align: middle;"> Click this icon to manage permissions</p>
+                </div>
+            </div>
+            
+            <!-- Video Upload Section -->
+            <div class="section video-section">
+                <div class="section-title">
+                    <i class="fas fa-video"></i>
+                    <h2>Upload Video File</h2>
+                </div>
+                <div class="file-upload" id="videoDropArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Click to select or drop a video file</p>
+                    <p style="font-size: 0.9rem; margin-bottom: 15px;">Supported format: .mp4</p>
+                    <label for="videoInput">Browse Video</label>
+                    <input type="file" name="video" accept=".mp4" id="videoInput">
+                </div>
+                <div class="audio-preview">
+                    <h3>Selected Video:</h3>
+                    <video id="videoPlayback" controls style="width:100%;display:none;"></video>
+                </div>
+            </div>
         </div>
-        <div class="timer" id="timerDisplay">Timer: 0s</div>
-        <audio id="audioPlayback" controls style="display: none;"></audio>
+        
         <div class="error" id="errorMsg"></div>
-        <!-- Hidden input for recorded audio -->
-        <input type="file" name="audio" id="blobAudio" style="display: none;" />
-        <button type="submit">Submit</button>
-    </form>
-    <div class="info">
-        <span>📱 You can use your phone’s voice recorder to create a .wav and upload here.</span>
+        
+        <div class="submit-area">
+            <button id="submitBtn" disabled>
+                <i class="fas fa-search"></i> Analyze Audio
+            </button>
+        </div>
+        
+        <div class="info">
+            <p><i class="fas fa-info-circle"></i> For best results, use clear audio without background noise (minimum 5 seconds)</p>
+        </div>
     </div>
-</div>
-<script>
-    const recordBtn = document.getElementById('recordBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const timerDisplay = document.getElementById('timerDisplay');
-    const errorMsg = document.getElementById('errorMsg');
-    const audioPlayback = document.getElementById('audioPlayback');
-    const blobAudio = document.getElementById('blobAudio');
-    const fileInput = document.getElementById('fileInput');
+    
+    <!-- Result Page -->
+    <div class="result-container" id="resultContainer">
+        <div class="result-header">
+            <h1><i class="fas fa-microphone-alt"></i> Detection Result</h1>
+        </div>
+        
+        <div class="result-content real">
+            <div class="result-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2 class="result-title">REAL</h2>
+            <div class="result-message">This audio has been verified as authentic</div>
+            
+            <div class="audio-preview">
+                <audio id="resultAudio" controls style="width: 100%;">
+                    <source src="#" type="audio/wav">
+                </audio>
+            </div>
+            
+            <button class="back-btn" id="backBtn">
+                <i class="fas fa-redo"></i> Test Another Audio
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const recordBtn = document.getElementById('recordBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const errorMsg = document.getElementById('errorMsg');
+        const audioPlayback = document.getElementById('audioPlayback');
+        const filePlayback = document.getElementById('filePlayback');
+        const fileInput = document.getElementById('fileInput');
+        const dropArea = document.getElementById('dropArea');
+        const submitBtn = document.getElementById('submitBtn');
+        const uploadContainer = document.getElementById('uploadContainer');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultAudio = document.getElementById('resultAudio');
+        const backBtn = document.getElementById('backBtn');
+        const resultContent = document.querySelector('.result-content');
+        const resultTitle = document.querySelector('.result-title');
+        const resultIcon = document.querySelector('.result-icon');
+        const resultMessage = document.querySelector('.result-message');
+        const permissionHelp = document.getElementById('permissionHelp');
+        const videoInput = document.getElementById('videoInput');
+        const videoPlayback = document.getElementById('videoPlayback');
+        const videoDropArea = document.getElementById('videoDropArea');
 
-    let mediaRecorder;
-    let audioChunks = [];
-    let startTime, timer;
-    const MAX_DURATION = 5;
-    const MIN_DURATION = 1;
+        // State variables
+        let mediaRecorder;
+        let audioChunks = [];
+        let startTime, timer;
+        const MAX_DURATION = 30;
+        const MIN_DURATION = 5;
+        let hasAudio = false;
+        let hasVideo = false;
+        let currentAudioUrl = '';
+        let currentVideoUrl = '';
+        let mediaStream = null;
 
-    // Allow only .wav and .flac uploads
-    fileInput.addEventListener('change', function() {
-        if (
-            fileInput.files.length > 0 &&
-            !(/\.(wav|flac)$/i).test(fileInput.files[0].name)
-        ) {
-            errorMsg.textContent = "Only .wav or .flac files are allowed.";
-            fileInput.value = ""; // reset
-        } else {
-            errorMsg.textContent = "";
-        }
-    });
-
-    recordBtn.onclick = async () => {
-        errorMsg.textContent = "";
-        audioPlayback.style.display = "none";
-        audioChunks = [];
-
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.start();
-        startTime = Date.now();
-
-        timer = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - startTime) / 1000);
-            timerDisplay.textContent = `Timer: ${elapsed}s`;
-            if (elapsed >= MAX_DURATION) {
-                stopRecording(); // auto stop
+        // Initialize
+        function init() {
+            updateSubmitButton();
+            
+            // Check if we're on localhost or HTTPS
+            const isSecure = window.location.protocol === 'https:' || 
+                            window.location.hostname === 'localhost' || 
+                            window.location.hostname === '127.0.0.1';
+            
+            if (!isSecure) {
+                showError("Microphone access requires a secure connection. Please use HTTPS or localhost.");
             }
-        }, 1000);
+        }
 
-        mediaRecorder.ondataavailable = event => {
-            audioChunks.push(event.data);
+        // File upload handling
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                
+                // Validate file type
+                const validExtensions = ['.wav', '.flac', '.mp3', '.m4a'];
+                const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+                
+                if (!validExtensions.includes(fileExt)) {
+                    showError("Only .wav, .flac, .mp3, or .m4a files are allowed.");
+                    fileInput.value = "";
+                    filePlayback.style.display = "none";
+                    return;
+                }
+                
+                // Hide error if valid
+                hideError();
+                
+                // Create preview
+                const url = URL.createObjectURL(file);
+                currentAudioUrl = url;
+                filePlayback.src = url;
+                filePlayback.style.display = "block";
+                
+                // Update state
+                hasAudio = true;
+                updateSubmitButton();
+            }
+        });
+
+        // Video file handling
+        videoInput.addEventListener('change', function() {
+            if (videoInput.files.length > 0) {
+                const file = videoInput.files[0];
+                
+                // Validate file type
+                const validExtensions = ['.mp4'];
+                const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+                
+                if (!validExtensions.includes(fileExt)) {
+                    showError("Only .mp4 files are allowed.");
+                    videoInput.value = "";
+                    videoPlayback.style.display = "none";
+                    return;
+                }
+                
+                // Hide error if valid
+                hideError();
+                
+                // Create preview
+                const url = URL.createObjectURL(file);
+                currentVideoUrl = url;
+                videoPlayback.src = url;
+                videoPlayback.style.display = "block";
+                
+                // Update state
+                hasVideo = true;
+                updateSubmitButton();
+            }
+        });
+
+        // Drag and drop functionality
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.style.borderColor = "#6366f1";
+            dropArea.style.backgroundColor = "#f0f4ff";
+        });
+
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.style.borderColor = "#b3b3b3";
+            dropArea.style.backgroundColor = "#f8fafc";
+        });
+
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.style.borderColor = "#b3b3b3";
+            dropArea.style.backgroundColor = "#f8fafc";
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                const event = new Event('change', { bubbles: true });
+                fileInput.dispatchEvent(event);
+            }
+        });
+
+        // Recording functionality
+        recordBtn.onclick = async () => {
+            hideError();
+            audioPlayback.style.display = "none";
+            audioChunks = [];
+            
+            try {
+                // Request microphone access
+                mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        sampleRate: 16000
+                    }
+                });
+                
+                // Hide permission help
+                permissionHelp.style.display = 'none';
+                
+                // Configure media recorder
+                mediaRecorder = new MediaRecorder(mediaStream);
+                
+                // Start recording
+                mediaRecorder.start();
+                startTime = Date.now();
+                
+                // Update UI
+                recordBtn.disabled = true;
+                stopBtn.disabled = false;
+                
+                // Start timer
+                timer = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    timerDisplay.innerHTML = `<i class="fas fa-clock"></i> Recording: ${elapsed}s`;
+                    
+                    if (elapsed >= MAX_DURATION) {
+                        stopRecording();
+                    }
+                }, 1000);
+                
+                // Collect audio data
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+                
+                // Handle recording stop
+                mediaRecorder.onstop = () => {
+                    clearInterval(timer);
+                    const duration = (Date.now() - startTime) / 1000;
+                    
+                    // Check minimum duration
+                    if (duration < MIN_DURATION) {
+                        showError(`Recording too short. Must be at least ${MIN_DURATION} seconds.`);
+                        return;
+                    }
+                    
+                    // Create audio blob
+                    const blob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const url = URL.createObjectURL(blob);
+                    currentAudioUrl = url;
+                    audioPlayback.src = url;
+                    audioPlayback.style.display = "block";
+                    
+                    // Stop all media tracks
+                    if (mediaStream) {
+                        mediaStream.getTracks().forEach(track => track.stop());
+                        mediaStream = null;
+                    }
+                    
+                    // Update UI
+                    recordBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    
+                    // Update state
+                    hasAudio = true;
+                    updateSubmitButton();
+                };
+            } catch (err) {
+                console.error("Recording error:", err);
+                
+                // Show permission help
+                permissionHelp.style.display = 'block';
+                
+                // Show error message
+                let errorMessage = "Microphone access denied. ";
+                
+                if (err.name === 'NotAllowedError') {
+                    errorMessage += "Please allow microphone permissions in your browser settings.";
+                } else if (err.name === 'NotFoundError' || err.name === 'OverconstrainedError') {
+                    errorMessage += "No microphone found. Please connect a microphone.";
+                } else {
+                    errorMessage += "Please check your microphone settings and try again.";
+                }
+                
+                showError(errorMessage);
+                
+                // Reset UI
+                recordBtn.disabled = false;
+                stopBtn.disabled = true;
+            }
         };
 
-        mediaRecorder.onstop = () => {
-            clearInterval(timer);
-            const duration = (Date.now() - startTime) / 1000;
-            if (duration < MIN_DURATION) {
-                errorMsg.textContent = "Recording too short. Must be at least 5 seconds.";
+        // Stop recording
+        stopBtn.onclick = () => {
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+            }
+        };
+        
+        function showError(message) {
+            errorMsg.textContent = message;
+            errorMsg.style.display = "block";
+        }
+        
+        function hideError() {
+            errorMsg.style.display = "none";
+        }
+        
+        function updateSubmitButton() {
+            submitBtn.disabled = !(hasAudio || hasVideo);
+        }
+        
+        // Submit button functionality
+        submitBtn.onclick = (e) => {
+            e.preventDefault();
+            
+            if (!hasAudio && !hasVideo) {
+                showError("Please upload an audio file or record your voice first.");
                 return;
             }
-
-            const blob = new Blob(audioChunks, { type: 'audio/wav' });
-            const url = URL.createObjectURL(blob);
-            audioPlayback.src = url;
-            audioPlayback.style.display = "block";
-
-            // Attach blob as file input
-            const file = new File([blob], "recorded_audio.wav", { type: 'audio/wav' });
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(file);
-            blobAudio.files = dataTransfer.files;
+            
+            // Show processing indicator
+            submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Analyzing...`;
+            submitBtn.disabled = true;
+            
+            // Simulate processing delay
+            setTimeout(() => {
+                // Show results
+                showResults();
+            }, 2000);
         };
-
-        recordBtn.disabled = true;
-        stopBtn.disabled = false;
-    };
-
-    stopBtn.onclick = () => stopRecording();
-
-    function stopRecording() {
-        if (mediaRecorder && mediaRecorder.state === "recording") {
-            mediaRecorder.stop();
+        
+        // Show results
+        function showResults() {
+            // Hide the form and show results
+            uploadContainer.style.display = 'none';
+            resultContainer.style.display = 'block';
+            resultAudio.src = currentAudioUrl;
+            
+            // Random result for demo
+            const isReal = Math.random() > 0.5;
+            
+            // Update results UI
+            if (isReal) {
+                resultContent.className = 'result-content real';
+                resultIcon.innerHTML = '<i class="fas fa-check"></i>';
+                resultTitle.textContent = 'REAL';
+                resultMessage.textContent = 'This audio has been verified as authentic';
+            } else {
+                resultContent.className = 'result-content fake';
+                resultIcon.innerHTML = '<i class="fas fa-times"></i>';
+                resultTitle.textContent = 'FAKE';
+                resultMessage.textContent = 'Deepfake audio detected';
+            }
         }
-        recordBtn.disabled = false;
-        stopBtn.disabled = true;
-    }
-</script>
+        
+        // Back button functionality
+        backBtn.onclick = () => {
+            resultContainer.style.display = 'none';
+            uploadContainer.style.display = 'block';
+            
+            // Reset form
+            submitBtn.innerHTML = `<i class="fas fa-search"></i> Analyze Audio`;
+            submitBtn.disabled = false;
+            filePlayback.style.display = 'none';
+            audioPlayback.style.display = 'none';
+            videoPlayback.style.display = 'none';
+            fileInput.value = '';
+            videoInput.value = '';
+            hasAudio = false;
+            hasVideo = false;
+        };
+        
+        // Initialize
+        init();
+    </script>
 </body>
 </html>

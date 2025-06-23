@@ -5,7 +5,7 @@ from utils import run_inference
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'wav', 'flac', 'mp3', 'm4a', 'mp4'}
+ALLOWED_EXTENSIONS = {'wav', 'flac', 'mp3', 'm4a'}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def allowed_file(filename):
@@ -17,15 +17,13 @@ def home():
 
 @app.route('/upload', methods=['POST'])
 def upload():
-    # Accept both audio and video fields
     file = request.files.get('audio')
+
     if not file or file.filename == '':
-        file = request.files.get('video')
-    if not file or file.filename == '':
-        return render_template("result.html", status="error", message="❌ No file selected.")
+        return render_template("result.html", status="error", message="❌ No audio file selected.")
 
     if not allowed_file(file.filename):
-        return render_template("result.html", status="error", message="❌ Unsupported file format.")
+        return render_template("result.html", status="error", message="❌ Unsupported audio format.")
 
     filename = secure_filename(file.filename)
     path = os.path.join(UPLOAD_FOLDER, filename)
@@ -43,7 +41,7 @@ def upload():
         return render_template("result.html", status="error", message=f"❌ Error: {result['message']}")
 
     prediction = "REAL" if result['prediction'] > 0.5 else "FAKE"
-    confidence = f"{result['confidence']:.4f}"
+    confidence = f"{result['prediction']:.4f}"
 
     return render_template("result.html", status="success", prediction=prediction, confidence=confidence)
 
