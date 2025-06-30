@@ -6,139 +6,177 @@
     <title>Deepfake Audio Detection</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Polished Deepfake Detection CSS */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
-            background: linear-gradient(135deg, #1a2a6c, #2d3a5a);
+            background: linear-gradient(135deg, #232526, #414345 80%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
         }
-        
+
         .container {
             width: 100%;
-            max-width: 900px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            max-width: 950px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 18px;
+            box-shadow: 0 10px 40px rgba(30, 41, 59, 0.18);
             overflow: hidden;
+            border: 1px solid #e0e7ef;
+            transition: box-shadow 0.3s;
         }
-        
+
         header {
-            background: linear-gradient(to right, #2d3a5a, #1a2a6c);
+            background: linear-gradient(to right, #2d3a5a, #1a2a6c 80%);
             color: white;
-            padding: 25px 30px;
+            padding: 32px 36px 18px 36px;
             text-align: center;
+            border-bottom: 1px solid #e0e7ef;
         }
-        
+
         header h1 {
-            font-size: 2rem;
-            margin-bottom: 5px;
-            font-weight: 600;
+            font-size: 2.3rem;
+            margin-bottom: 6px;
+            font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            gap: 18px;
+            letter-spacing: 1px;
         }
-        
+
         .content {
             display: flex;
-            padding: 25px;
-            gap: 25px;
+            padding: 32px 28px;
+            gap: 28px;
+            background: #f5f7fa;
         }
-        
-        @media (max-width: 768px) {
+
+        @media (max-width: 900px) {
             .content {
                 flex-direction: column;
+                padding: 18px 8px;
+                gap: 18px;
             }
         }
-        
+
         .section {
             flex: 1;
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            border: 1px solid #eaeaea;
+            background: #fff;
+            border-radius: 14px;
+            padding: 22px 18px 18px 18px;
+            box-shadow: 0 2px 12px rgba(30, 41, 59, 0.06);
+            border: 1px solid #e5e7eb;
+            min-width: 260px;
+            min-height: 340px;
+            transition: box-shadow 0.2s;
         }
-        
+
+        .section:hover {
+            box-shadow: 0 4px 24px rgba(30, 41, 59, 0.10);
+        }
+
         .section-title {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 13px;
+            margin-bottom: 18px;
             color: #2d3a5a;
+            font-size: 1.18rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
-        
+
         .section-title i {
-            font-size: 1.4rem;
-            width: 40px;
-            height: 40px;
+            font-size: 1.5rem;
+            width: 42px;
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
             background: #eef2ff;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.07);
         }
-        
+
         .upload-section .section-title i {
             color: #4caf50;
+            background: #e8f5e9;
         }
-        
+
         .record-section .section-title i {
             color: #2196f3;
+            background: #e3f2fd;
         }
-        
+
+        .video-section .section-title i {
+            color: #e67e22;
+            background: #fbeee6;
+        }
+
         .file-upload {
             border: 2px dashed #b3b3b3;
-            border-radius: 10px;
-            padding: 25px 20px;
+            border-radius: 12px;
+            padding: 28px 18px;
             text-align: center;
             background: #f8fafc;
-            transition: border-color 0.3s;
+            transition: border-color 0.3s, background 0.3s;
             cursor: pointer;
             position: relative;
+            margin-bottom: 10px;
         }
-        
-        .file-upload:hover {
+
+        .file-upload:hover, .file-upload:focus-within {
             border-color: #6366f1;
+            background: #f0f4ff;
         }
-        
+
         .file-upload i {
-            font-size: 2.5rem;
+            font-size: 2.7rem;
             color: #6366f1;
-            margin-bottom: 15px;
+            margin-bottom: 13px;
         }
-        
+
         .file-upload p {
-            font-size: 1rem;
+            font-size: 1.04rem;
             color: #64748b;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
-        
+
+        .file-upload .helper-text {
+            font-size: 0.92rem;
+            color: #a0aec0;
+            margin-bottom: 12px;
+        }
+
         .file-upload label {
             display: inline-block;
-            padding: 12px 25px;
-            background: #6366f1;
+            padding: 11px 26px;
+            background: linear-gradient(to right, #6366f1, #4f46e5);
             color: white;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 500;
-            transition: background 0.3s;
+            font-size: 1rem;
+            transition: background 0.3s, box-shadow 0.2s;
+            margin-top: 6px;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
         }
-        
+
         .file-upload label:hover {
-            background: #4f46e5;
+            background: linear-gradient(to right, #4f46e5, #6366f1);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.13);
         }
-        
-        #fileInput {
+
+        #fileInput, #videoInput {
             position: absolute;
             width: 1px;
             height: 1px;
@@ -148,18 +186,18 @@
             clip: rect(0, 0, 0, 0);
             border: 0;
         }
-        
+
         .recording-controls {
             display: flex;
             gap: 15px;
             margin-top: 10px;
         }
-        
+
         .recording-btn {
-            padding: 14px;
+            padding: 13px 0;
             border: none;
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: 1.05rem;
             font-weight: 600;
             cursor: pointer;
             display: flex;
@@ -168,124 +206,165 @@
             gap: 10px;
             transition: all 0.3s;
             flex: 1;
+            background: #f1f5f9;
+            color: #2d3a5a;
+            box-shadow: 0 1px 4px rgba(30, 41, 59, 0.04);
         }
-        
+
         #recordBtn {
             background: linear-gradient(to right, #2196f3, #1976d2);
             color: white;
         }
-        
+
         #recordBtn:hover {
             background: linear-gradient(to right, #1976d2, #0d47a1);
         }
-        
+
         #stopBtn {
             background: linear-gradient(to right, #f44336, #d32f2f);
             color: white;
         }
-        
+
         #stopBtn:hover {
             background: linear-gradient(to right, #d32f2f, #b71c1c);
         }
-        
+
         #stopBtn:disabled {
             background: #b3b3b3;
             cursor: not-allowed;
         }
-        
+
         .timer {
             text-align: center;
-            font-size: 1.1rem;
+            font-size: 1.08rem;
             font-weight: 600;
             color: #2d3a5a;
-            margin: 15px 0;
-            padding: 12px;
+            margin: 15px 0 0 0;
+            padding: 10px 0;
             background: #eef2ff;
             border-radius: 8px;
+            letter-spacing: 0.5px;
         }
-        
+
         .audio-preview {
-            margin-top: 15px;
+            margin-top: 18px;
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 10px 8px 8px 8px;
+            box-shadow: 0 1px 4px rgba(30, 41, 59, 0.03);
         }
-        
+
         .audio-preview h3 {
             color: #2d3a5a;
-            margin-bottom: 10px;
-            font-size: 1.1rem;
+            margin-bottom: 8px;
+            font-size: 1.08rem;
+            font-weight: 500;
         }
-        
-        audio {
+
+        audio, video {
             width: 100%;
             outline: none;
             border-radius: 8px;
+            margin-top: 2px;
+            background: #e5e7eb;
         }
-        
+
         .error {
             color: #e11d48;
             font-weight: 600;
-            margin: 10px 0;
-            padding: 10px;
+            margin: 12px 0 0 0;
+            padding: 12px;
             background: #fff0f3;
             border-radius: 8px;
             text-align: center;
             display: none;
+            font-size: 1.05rem;
+            border: 1px solid #fbc2c4;
+            box-shadow: 0 2px 8px rgba(225, 29, 72, 0.04);
         }
-        
+
         .permission-help {
             background: #e6f7ff;
             border-left: 4px solid #1890ff;
             padding: 15px;
-            margin: 15px 0;
-            border-radius: 4px;
+            margin: 15px 0 0 0;
+            border-radius: 6px;
             display: none;
+            font-size: 1rem;
         }
-        
+
         .permission-help h4 {
             color: #1890ff;
             margin-bottom: 8px;
+            font-size: 1.08rem;
         }
-        
+
         .submit-area {
-            padding: 20px;
+            padding: 22px 0 10px 0;
             text-align: center;
-            border-top: 1px solid #eee;
+            border-top: 1px solid #e5e7eb;
+            background: #f5f7fa;
         }
-        
+
         #submitBtn {
-            padding: 16px 40px;
+            padding: 15px 38px;
             border: none;
             border-radius: 10px;
             background: linear-gradient(to right, #2d3a5a, #1a2a6c);
             color: white;
-            font-size: 1.1rem;
+            font-size: 1.13rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
             display: inline-flex;
             align-items: center;
             gap: 12px;
+            box-shadow: 0 2px 8px rgba(30, 41, 59, 0.07);
+            letter-spacing: 0.5px;
         }
-        
-        #submitBtn:hover {
+
+        #submitBtn:hover:not(:disabled) {
             background: linear-gradient(to right, #1a2a6c, #0d1b4d);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 5px 18px rgba(30, 41, 59, 0.13);
         }
-        
+
         #submitBtn:disabled {
             background: #b3b3b3;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
-        
+
         .info {
             text-align: center;
             color: #64748b;
-            font-size: 0.9rem;
-            padding: 15px 20px 20px;
+            font-size: 0.98rem;
+            padding: 12px 20px 18px;
+            background: #f8fafc;
+            border-radius: 0 0 14px 14px;
+            border-top: 1px solid #e5e7eb;
         }
-        
+
+        footer {
+            text-align: center;
+            color: #b3b3b3;
+            font-size: 0.93rem;
+            padding: 12px 0 0;
+            background: none;
+        }
+
+        footer a {
+            color: #6366f1;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        footer a:hover {
+            color: #4f46e5;
+            text-decoration: underline;
+        }
+
         /* Result Page Styles */
         .result-container {
             display: none;
@@ -293,221 +372,203 @@
             max-width: 500px;
             background: white;
             border-radius: 15px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.18);
             overflow: hidden;
             margin: 2rem auto;
+            border: 1px solid #e0e7ef;
         }
-        
+
         .result-header {
-            background: linear-gradient(to right, #2d3a5a, #1a2a6c);
+            background: linear-gradient(to right, #2d3a5a, #1a2a6c 80%);
             color: white;
-            padding: 25px 30px;
+            padding: 28px 30px;
             text-align: center;
+            border-bottom: 1px solid #e0e7ef;
         }
-        
+
         .result-content {
-            padding: 30px;
+            padding: 32px 18px;
             text-align: center;
         }
-        
+
         .result-icon {
-            width: 150px;
-            height: 150px;
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 25px;
-            font-size: 5rem;
+            margin: 0 auto 22px;
+            font-size: 4.5rem;
+            box-shadow: 0 2px 12px rgba(30, 41, 59, 0.09);
         }
-        
+
         .real .result-icon {
             background: linear-gradient(135deg, #4CAF50, #2E7D32);
             color: white;
         }
-        
+
         .fake .result-icon {
             background: linear-gradient(135deg, #f44336, #c62828);
             color: white;
         }
-        
+
         .result-title {
-            font-size: 3rem;
-            margin-bottom: 15px;
+            font-size: 2.7rem;
+            margin-bottom: 13px;
             font-weight: 700;
+            letter-spacing: 1px;
         }
-        
+
         .real .result-title {
             color: #2E7D32;
         }
-        
+
         .fake .result-title {
             color: #c62828;
         }
-        
+
         .result-message {
-            font-size: 1.2rem;
-            margin: 20px 0;
+            font-size: 1.18rem;
+            margin: 18px 0;
             color: #2d3a5a;
         }
-        
-        .audio-preview {
-            margin: 30px 0;
-        }
-        
+
         .back-btn {
-            padding: 14px 30px;
+            padding: 13px 28px;
             border: none;
             border-radius: 8px;
             background: #3498db;
             color: white;
-            font-size: 1.1rem;
+            font-size: 1.08rem;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: 18px;
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            transition: background 0.3s;
+            transition: background 0.3s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.09);
         }
-        
+
         .back-btn:hover {
             background: #2980b9;
+            box-shadow: 0 4px 16px rgba(52, 152, 219, 0.13);
         }
-        
+
         @media (max-width: 600px) {
             .content {
-                padding: 15px;
-                gap: 15px;
+                padding: 10px 2px;
+                gap: 10px;
             }
-            
             .section {
-                padding: 15px;
+                padding: 10px 4px;
+                min-width: unset;
             }
-            
             .file-upload {
-                padding: 20px 15px;
+                padding: 14px 4px;
             }
-            
             .recording-controls {
                 flex-direction: column;
+                gap: 8px;
             }
-            
             .result-content {
-                padding: 20px;
+                padding: 12px 2px;
             }
-            
             .result-icon {
-                width: 120px;
-                height: 120px;
-                font-size: 4rem;
-            }
-            
-            .result-title {
+                width: 90px;
+                height: 90px;
                 font-size: 2.5rem;
+            }
+            .result-title {
+                font-size: 1.5rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Upload Page -->
     <div class="container" id="uploadContainer">
         <header>
-            <h1><i class="fas fa-microphone-alt"></i> Deepfake Audio Detection</h1>
+            <h1><i class="fas fa-microphone-alt"></i> Deepfake Audio/Video Detection</h1>
+            <p style="color:#b3b3b3;font-size:1rem;margin-top:8px;">Upload or record audio/video to check authenticity</p>
         </header>
-        
         <div class="content">
-            <!-- Upload Section -->
+            <!-- Audio Upload -->
             <div class="section upload-section">
                 <div class="section-title">
-                    <i class="fas fa-file-upload"></i>
-                    <h2>Upload Audio File</h2>
+                    <i class="fas fa-file-audio"></i>
+                    <h2>Audio File</h2>
                 </div>
-                
-                <div class="file-upload" id="dropArea">
+                <div class="file-upload" id="dropArea" title="Drag & drop or click to select audio">
                     <i class="fas fa-cloud-upload-alt"></i>
-                    <p>Click to select or drop an audio file</p>
-                    <p style="font-size: 0.9rem; margin-bottom: 15px;">Supported formats: .wav, .flac, .mp3, .m4a</p>
-                    <label for="fileInput">Browse Files</label>
+                    <p>Click or drag audio file here</p>
+                    <p class="helper-text">Formats: .wav, .flac, .mp3, .m4a</p>
+                    <label for="fileInput">Browse Audio</label>
                     <input type="file" name="audio" accept=".wav,.flac,.mp3,.m4a" id="fileInput">
                 </div>
-                
-                <div class="audio-preview">
-                    <h3>Selected File:</h3>
+                <div class="audio-preview" style="display:none;" id="audioPreviewSection">
+                    <h3>Audio Preview:</h3>
                     <audio id="filePlayback" controls></audio>
                 </div>
             </div>
-            
-            <!-- Recording Section -->
+            <!-- Live Recording -->
             <div class="section record-section">
                 <div class="section-title">
                     <i class="fas fa-microphone"></i>
-                    <h2>Live Recording</h2>
+                    <h2>Record Live</h2>
                 </div>
-                
                 <div class="recording-controls">
-                    <button class="recording-btn" id="recordBtn">
-                        <i class="fas fa-circle"></i> Start Recording
+                    <button class="recording-btn" id="recordBtn" title="Start recording">
+                        <i class="fas fa-circle"></i> Record
                     </button>
-                    <button class="recording-btn" id="stopBtn" disabled>
-                        <i class="fas fa-stop"></i> Stop Recording
+                    <button class="recording-btn" id="stopBtn" disabled title="Stop recording">
+                        <i class="fas fa-stop"></i> Stop
                     </button>
                 </div>
-                
                 <div class="timer" id="timerDisplay">
-                    <i class="fas fa-clock"></i> Recording: 0s
+                    <i class="fas fa-clock"></i> 0s
                 </div>
-                
-                <div class="audio-preview">
+                <div class="audio-preview" style="display:none;" id="recordingPreviewSection">
                     <h3>Recording Preview:</h3>
                     <audio id="audioPlayback" controls></audio>
                 </div>
-                
                 <div class="permission-help" id="permissionHelp">
-                    <h4>Microphone Permission Required</h4>
-                    <p>If you don't see the permission prompt:</p>
-                    <ol>
-                        <li>Look for a camera/microphone icon in your browser's address bar</li>
-                        <li>Click it and select "Always allow..."</li>
-                        <li>Refresh the page</li>
-                    </ol>
-                    <p>For Chrome: <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktY2FtZXJhIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik0xNSA0YS41LjUgMCAwIDEtLjUuNWgtMi41bC4zMi0xLjU5QTEuNSAxLjUgMCAwIDAgMTIgMmgtMXYxYTEgMSAwIDAgMSAxIDFoNWwuNSAxLjg1N2EuNS41IDAgMCAxIC4wMTYuMDg1TDE1IDR6TTAgNGEyIDIgMCAwIDAgMiAyaDEyYTIgMiAwIDAgMCAyLTJWMmEyIDIgMCAwIDAtMi0ySDJBMiAyIDAgMCAwIDAgMnYyeiIvPgogIDxwYXRoIGQ9Ik05IDVhMSAxIDAgMSAwLTIgMCAxIDEgMCAwIDAgMiAwem0wIDNhMiAyIDAgMSAxLTQtMCAyIDIgMCAwIDEgNCAweiIvPgo8L3N2Zz4=" alt="Permission icon" style="height: 16px; vertical-align: middle;"> Click this icon to manage permissions</p>
+                    <h4>Microphone Permission Needed</h4>
+                    <p>Allow microphone access in your browser settings.</p>
                 </div>
             </div>
-            
-            <!-- Video Upload Section -->
+            <!-- Video Upload -->
             <div class="section video-section">
                 <div class="section-title">
                     <i class="fas fa-video"></i>
-                    <h2>Upload Video File</h2>
+                    <h2>Video File</h2>
                 </div>
-                <div class="file-upload" id="videoDropArea">
+                <div class="file-upload" id="videoDropArea" title="Drag & drop or click to select video">
                     <i class="fas fa-cloud-upload-alt"></i>
-                    <p>Click to select or drop a video file</p>
-                    <p style="font-size: 0.9rem; margin-bottom: 15px;">Supported format: .mp4</p>
+                    <p>Click or drag video file here</p>
+                    <p class="helper-text">Format: .mp4</p>
                     <label for="videoInput">Browse Video</label>
                     <input type="file" name="video" accept=".mp4" id="videoInput">
                 </div>
-                <div class="audio-preview">
-                    <h3>Selected Video:</h3>
-                    <video id="videoPlayback" controls style="width:100%;display:none;"></video>
+                <div class="audio-preview" style="display:none;" id="videoPreviewSection">
+                    <h3>Video Preview:</h3>
+                    <video id="videoPlayback" controls style="width:100%;"></video>
                 </div>
             </div>
         </div>
-        
         <div class="error" id="errorMsg"></div>
-        
         <div class="submit-area">
             <button id="submitBtn" disabled>
-                <i class="fas fa-search"></i> Analyze Audio
+                <i class="fas fa-search"></i> Analyze
             </button>
         </div>
-        
         <div class="info">
-            <p><i class="fas fa-info-circle"></i> For best results, use clear audio without background noise (minimum 5 seconds)</p>
+            <p><i class="fas fa-info-circle"></i> Use clear audio/video (min 5 sec) for best results.</p>
         </div>
+        <footer style="text-align:center;color:#b3b3b3;font-size:0.9rem;padding:10px 0 0;">
+            &copy; 2025 Deepfake Detection | <a href="mailto:support@example.com" style="color:#6366f1;">Support</a>
+        </footer>
     </div>
-    
     <!-- Result Page -->
     <div class="result-container" id="resultContainer">
         <div class="result-header">
@@ -585,62 +646,61 @@
 
         // File upload handling
         fileInput.addEventListener('change', function() {
+            hideError();
+            // Always show the preview section
+            document.getElementById('audioPreviewSection').style.display = "block";
+            filePlayback.src = "";
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
-                
-                // Validate file type
                 const validExtensions = ['.wav', '.flac', '.mp3', '.m4a'];
                 const fileExt = '.' + file.name.split('.').pop().toLowerCase();
-                
                 if (!validExtensions.includes(fileExt)) {
-                    showError("Only .wav, .flac, .mp3, or .m4a files are allowed.");
+                    showError("Invalid audio format.");
                     fileInput.value = "";
                     filePlayback.style.display = "none";
                     return;
                 }
-                
-                // Hide error if valid
-                hideError();
-                
-                // Create preview
                 const url = URL.createObjectURL(file);
                 currentAudioUrl = url;
                 filePlayback.src = url;
                 filePlayback.style.display = "block";
-                
-                // Update state
                 hasAudio = true;
+                hasVideo = false;
+                updateSubmitButton();
+            } else {
+                filePlayback.style.display = "none";
+                hasAudio = false;
                 updateSubmitButton();
             }
         });
 
-        // Video file handling
+        // Video upload handling
         videoInput.addEventListener('change', function() {
+            hideError();
+
+            // Always show the preview section
+            document.getElementById('videoPreviewSection').style.display = "block";
+            videoPlayback.src = "";
             if (videoInput.files.length > 0) {
                 const file = videoInput.files[0];
-                
-                // Validate file type
                 const validExtensions = ['.mp4'];
                 const fileExt = '.' + file.name.split('.').pop().toLowerCase();
-                
                 if (!validExtensions.includes(fileExt)) {
-                    showError("Only .mp4 files are allowed.");
+                    showError("Invalid video format.");
                     videoInput.value = "";
                     videoPlayback.style.display = "none";
                     return;
                 }
-                
-                // Hide error if valid
-                hideError();
-                
-                // Create preview
                 const url = URL.createObjectURL(file);
                 currentVideoUrl = url;
                 videoPlayback.src = url;
                 videoPlayback.style.display = "block";
-                
-                // Update state
                 hasVideo = true;
+                hasAudio = false;
+                updateSubmitButton();
+            } else {
+                videoPlayback.style.display = "none";
+                hasVideo = false;
                 updateSubmitButton();
             }
         });
@@ -672,7 +732,7 @@
         // Recording functionality
         recordBtn.onclick = async () => {
             hideError();
-            audioPlayback.style.display = "none";
+            hideAllPreviews();
             audioChunks = [];
             
             try {
@@ -730,7 +790,7 @@
                     const url = URL.createObjectURL(blob);
                     currentAudioUrl = url;
                     audioPlayback.src = url;
-                    audioPlayback.style.display = "block";
+                    document.getElementById('recordingPreviewSection').style.display = "block";
                     
                     // Stop all media tracks
                     if (mediaStream) {
@@ -778,6 +838,13 @@
             }
         };
         
+        // Helper: Hide all previews
+        function hideAllPreviews() {
+            document.getElementById('audioPreviewSection').style.display = 'none';
+            document.getElementById('recordingPreviewSection').style.display = 'none';
+            document.getElementById('videoPreviewSection').style.display = 'none';
+        }
+
         function showError(message) {
             errorMsg.textContent = message;
             errorMsg.style.display = "block";
@@ -853,6 +920,8 @@
         };
         
         // Initialize
+        hideAllPreviews();
+        hideError();
         init();
     </script>
 </body>

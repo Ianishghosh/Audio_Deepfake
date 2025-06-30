@@ -35,6 +35,25 @@ def convert_flac_to_wav(flac_path):
         logging.error(f"Conversion failed for {flac_path}: {e}")
         return None
 
+# Convert .webm to temporary .wav file
+def convert_webm_to_wav(webm_path, duration=30):
+    try:
+        temp_wav = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
+        command = [
+            "ffmpeg",
+            "-y",
+            "-i", webm_path,
+            "-t", str(duration),
+            "-ac", "1",
+            "-ar", "16000",
+            temp_wav.name
+        ]
+        subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        return temp_wav.name
+    except Exception as e:
+        logging.error(f"FFmpeg conversion failed for {webm_path}: {e}")
+        return None
+
 # Extract audio from mp4 using ffmpeg (first 30 seconds, mono, 16kHz)
 def extract_audio_from_mp4(mp4_path, duration=30):
     try:
@@ -67,6 +86,11 @@ def load_audio(filename):
         filename = temp_wav_path
     elif ext == ".mp4":
         temp_wav_path = extract_audio_from_mp4(filename, duration=30)
+        if temp_wav_path is None:
+            return None, None
+        filename = temp_wav_path
+    elif ext == ".webm":
+        temp_wav_path = convert_webm_to_wav(filename, duration=30)
         if temp_wav_path is None:
             return None, None
         filename = temp_wav_path

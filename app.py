@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect
 from werkzeug.utils import secure_filename
 import os
 from utils import run_inference
@@ -10,6 +10,8 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 
 @app.route('/')
 def home():
@@ -48,4 +50,4 @@ def upload():
     return render_template("result.html", status="success", prediction=prediction, confidence=confidence)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, ssl_context=('cert.pem', 'key.pem'))
