@@ -434,6 +434,13 @@
             color: #2d3a5a;
         }
 
+        .confidence-score {
+            font-size: 1.1rem;
+            margin-top: 10px;
+            color: #2d3a5a;
+            font-weight: 500;
+        }
+
         .back-btn {
             padding: 13px 28px;
             border: none;
@@ -569,30 +576,7 @@
             &copy; 2025 Deepfake Detection | <a href="mailto:support@example.com" style="color:#6366f1;">Support</a>
         </footer>
     </div>
-    <!-- Result Page -->
-    <div class="result-container" id="resultContainer">
-        <div class="result-header">
-            <h1><i class="fas fa-microphone-alt"></i> Detection Result</h1>
-        </div>
-        
-        <div class="result-content real">
-            <div class="result-icon">
-                <i class="fas fa-check"></i>
-            </div>
-            <h2 class="result-title">REAL</h2>
-            <div class="result-message">This audio has been verified as authentic</div>
-            
-            <div class="audio-preview">
-                <audio id="resultAudio" controls style="width: 100%;">
-                    <source src="#" type="audio/wav">
-                </audio>
-            </div>
-            
-            <button class="back-btn" id="backBtn">
-                <i class="fas fa-redo"></i> Test Another Audio
-            </button>
-        </div>
-    </div>
+    
     
     <script>
         // DOM Elements
@@ -859,23 +843,48 @@
         }
         
         // Submit button functionality
-        submitBtn.onclick = (e) => {
+        submitBtn.onclick = async (e) => {
             e.preventDefault();
-            
+
             if (!hasAudio && !hasVideo) {
                 showError("Please upload an audio file or record your voice first.");
                 return;
             }
-            
-            // Show processing indicator
+
             submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Analyzing...`;
             submitBtn.disabled = true;
-            
-            // Simulate processing delay
-            setTimeout(() => {
-                // Show results
-                showResults();
-            }, 2000);
+
+            // Prepare form data
+            const formData = new FormData();
+            if (hasAudio) {
+                // If using recorded audio
+                if (audioPlayback.src && audioPlayback.src.startsWith('blob:')) {
+                    const response = await fetch(audioPlayback.src);
+                    const blob = await response.blob();
+                    formData.append('audio', blob, 'recorded.wav');
+                } else if (fileInput.files.length > 0) {
+                    formData.append('audio', fileInput.files[0]);
+                }
+            }
+            if (hasVideo && videoInput.files.length > 0) {
+                formData.append('video', videoInput.files[0]);
+            }
+
+            // Send to backend
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text()) // Flask renders HTML
+            .then(html => {
+                // Replace the whole page with the result, or update result container
+                document.body.innerHTML = html;
+            })
+            .catch(err => {
+                showError("Error analyzing file. Please try again.");
+                submitBtn.innerHTML = `<i class="fas fa-search"></i> Analyze Audio`;
+                submitBtn.disabled = false;
+            });
         };
         
         // Show results
@@ -900,6 +909,17 @@
                 resultTitle.textContent = 'FAKE';
                 resultMessage.textContent = 'Deepfake audio detected';
             }
+
+            // Show confidence score (demo purpose)
+            const confidenceScore = (Math.random() * 100).toFixed(2);
+            const confidenceText = isReal ? 
+                `Confidence: ${confidenceScore}%` : 
+                `Confidence: ${confidenceScore}%`;
+            
+            const confidenceElement = document.createElement('p');
+            confidenceElement.className = 'confidence-score';
+            confidenceElement.innerHTML = confidenceText;
+            resultContent.appendChild(confidenceElement);
         }
         
         // Back button functionality
