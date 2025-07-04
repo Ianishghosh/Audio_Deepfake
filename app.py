@@ -44,10 +44,10 @@ def upload():
     if result['status'] == 'error':
         return render_template("result.html", status="error", message=f"❌ Error: {result['message']}")
 
-    prediction = "REAL" if result['prediction'] > 0.5 else "FAKE"
-    confidence = f"{result['confidence']:.4f}"
+    prediction = "REAL" if result['prediction'] >= 0.5 else "FAKE"
+    confidence = f"{result['prediction'] * 100:.2f}%"
 
     return render_template("result.html", status="success", prediction=prediction, confidence=confidence)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, ssl_context=('cert.pem', 'key.pem'))
+    app.run(host='0.0.0.0', port=5000, ssl_context=('cert.pem', 'key.pem'), debug=True)
