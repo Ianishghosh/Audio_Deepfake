@@ -19,6 +19,12 @@
         }
         .success { color: green; }
         .error { color: red; }
+        .confidence-score {
+            font-size: 1.1rem;
+            margin-top: 10px;
+            color: #2d3a5a;
+            font-weight: 500;
+        }
         a { display: block; margin-top: 20px; text-decoration: none; color: blue; }
     </style>
 </head>
@@ -27,7 +33,7 @@
         {% if status == "success" %}
             <h2 class="success">✅ Deepfake Detection Result</h2>
             <p><strong>Prediction:</strong> {{ prediction }}</p>
-            <p><strong>Confidence Score:</strong> {{ confidence }}</p>
+            <p class="confidence-score"><strong>Confidence Score:</strong> {{ confidence }}</p>
         {% else %}
             <h2 class="error">❌ Detection Failed</h2>
             <p>{{ message }}</p>
