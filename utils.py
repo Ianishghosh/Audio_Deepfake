@@ -59,7 +59,7 @@ def convert_webm_to_wav(webm_path, duration=30):
         return None
 
 # Extract audio from mp4 using ffmpeg (first 30 seconds, mono, 16kHz)
-def extract_audio_from_mp4(mp4_path, duration=30):
+def extract_audio_from_mp4(mp4_path, duration=5):  # <-- set to 3 seconds
     try:
         temp_wav = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
         command = [
@@ -172,7 +172,12 @@ def run_inference(file_path):
     try:
         # Determine model based on file extension
         ext = os.path.splitext(file_path)[1].lower()
-        model_path = MODEL_FLAC if ext == ".flac" else MODEL_DEFAULT
+        if ext in [".flac", ".mp4"]:
+            model_path = MODEL_FLAC
+            model_used = "FLAC/ASVspoof/Video-specialized"
+        else:
+            model_path = MODEL_DEFAULT
+            model_used = "ADD/Audio-specialized"
         
         interpreter = tflite.Interpreter(model_path=model_path)
         interpreter.allocate_tensors()
@@ -198,16 +203,26 @@ def run_inference(file_path):
         interpreter.invoke()
         output = interpreter.get_tensor(output_details[0]['index'])
 
-        prob = float(output[0][0])
-        pred = int(prob > 0.5)
+        prob = (output[0][0])
+
+        # Custom prediction logic:
+        # If the original file was .mp4 (video), invert the prediction logic
+        if ext == ".mp4":
+            pred = int(prob <= 0.5)
+            label = "Bona fide" if pred else "Spoof"
+            confidence = round((1 - prob) if pred else prob, 4)
+        else:
+            pred = int(prob > 0.5)
+            label = "Bona fide" if pred else "Spoof"
+            confidence = round(prob if pred else 1 - prob, 4)
 
         return {
             "file": file_path,
             "status": "success",
-            "label": "Bona fide" if pred else "Spoof",
+            "label": label,
             "prediction": pred,
-            "confidence": round(prob if pred else 1 - prob, 4),
-            "model_used": "FLAC-specialized" if ext == ".flac" else "Default"
+            "confidence": confidence,
+            "model_used": model_used
         }
     except Exception as e:
         logging.exception("❌ Inference failed")
