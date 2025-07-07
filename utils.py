@@ -1,4 +1,4 @@
-#Utility functions for audio processing and inference
+# Utility functions for audio processing and inference
 import numpy as np
 import pywt
 import librosa
@@ -21,6 +21,10 @@ logging.basicConfig(level=logging.INFO, format='%(message)s')
 # Load pre-fitted preprocessing artifacts
 scaler = joblib.load('robust_scaler1.pkl')
 transformer = joblib.load('yeo_johnson_transform.pkl')
+
+# Model paths
+MODEL_FLAC = "model1.tflite"  
+MODEL_DEFAULT = "model.tflite"  
 
 # Convert .flac to temporary .wav file
 def convert_flac_to_wav(flac_path):
@@ -79,12 +83,7 @@ def load_audio(filename):
     ext = os.path.splitext(filename)[1].lower()
     temp_wav_path = None
 
-    if ext == ".flac":
-        temp_wav_path = convert_flac_to_wav(filename)
-        if temp_wav_path is None:
-            return None, None
-        filename = temp_wav_path
-    elif ext == ".mp4":
+    if ext == ".mp4":
         temp_wav_path = extract_audio_from_mp4(filename, duration=30)
         if temp_wav_path is None:
             return None, None
@@ -129,17 +128,26 @@ def extract_wavelet_features(ewt_coeffs, wpt_coeffs):
 
 def extract_spectral_feature(y, sr):
     mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
-    return (1 - np.std(mfcc) / np.mean(mfcc))
+    mfcc_mean = np.mean(mfcc)
+    if np.isclose(mfcc_mean, 0): # just to ensure any division by zero is avoided
+        logging.warning("MFCC mean is zero, returning 0.0 for spectral feature")
+        return 0.0
+    return (1 - np.std(mfcc) / mfcc_mean)
 
 def extract_pitch_variation(y, sr):
     pitches, mags = librosa.piptrack(y=y, sr=sr)
     valid = pitches[mags > np.median(mags)]
-    return (np.std(valid) / np.mean(valid)) if len(valid) > 0 and np.mean(valid) > 0 else 0
+    if len(valid) == 0:
+        return 0.0
+    mean_valid = np.mean(valid)
+    if mean_valid > 0:
+        return np.std(valid) / mean_valid
+    return 0.0
 
 def extract_features(file_path):
     try:
         sr, y = load_audio(file_path)
-        if y is None:
+        if y is None or len(y) == 0:
             raise ValueError("Invalid or empty audio")
         ewt = ewt_decompose(y)
         wpt = wpt_decompose(y)
@@ -147,7 +155,14 @@ def extract_features(file_path):
         spec_feat = extract_spectral_feature(y, sr)
         pitch_feat = extract_pitch_variation(y, sr)
         full_vector = [spec_feat, pitch_feat] + feats
-        return np.array(full_vector, dtype=np.float32).reshape(1, -1)
+        full_vector = np.array(full_vector, dtype=np.float32).reshape(1, -1)
+        
+        # Handle potential NaNs/Infs
+        if np.any(np.isnan(full_vector)) or np.any(np.isinf(full_vector)):
+            logging.warning(f"NaN/Inf found in features for {file_path}")
+            full_vector = np.nan_to_num(full_vector, nan=0.0, posinf=0.0, neginf=0.0)
+            
+        return full_vector
     except Exception:
         logging.exception(f"❌ Feature extraction failed for {file_path}")
         return None
@@ -155,7 +170,11 @@ def extract_features(file_path):
 # Inference
 def run_inference(file_path):
     try:
-        interpreter = tflite.Interpreter(model_path="model.tflite")
+        # Determine model based on file extension
+        ext = os.path.splitext(file_path)[1].lower()
+        model_path = MODEL_FLAC if ext == ".flac" else MODEL_DEFAULT
+        
+        interpreter = tflite.Interpreter(model_path=model_path)
         interpreter.allocate_tensors()
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
@@ -187,7 +206,8 @@ def run_inference(file_path):
             "status": "success",
             "label": "Bona fide" if pred else "Spoof",
             "prediction": pred,
-            "confidence": round(prob if pred else 1 - prob, 4)
+            "confidence": round(prob if pred else 1 - prob, 4),
+            "model_used": "FLAC-specialized" if ext == ".flac" else "Default"
         }
     except Exception as e:
         logging.exception("❌ Inference failed")
